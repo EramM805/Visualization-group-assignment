@@ -1,10 +1,17 @@
-# import csv
-# with open('./data/ststdsadata.csv', newline='') as csvfile:
-#     spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-#     for row in spamreader:
-#         print(', '.join(row))
-
 import pandas as pd
-data = pd.read_csv('./data/ststdsadata.csv', encoding= 'unicode_escape')
-print(data)
 
+# import dataset
+states_data = pd.read_csv('./data/ststdsadata.csv', delimiter=',')
+
+#fix column names and removed null rows
+states_data.columns = ['FIPS Code', 'State', 'Year', 'Month', 'Civilian Non-Institutional Population', 'Labor Force Total', 'Labor Force Percent of Population', 'Employment Total', 
+    'Unemployment Total', 'Unemployment Percent of Population', 'Unemployment Rate']
+states_data = states_data.iloc[9:]
+
+# 1st month from 2016-2021
+by_month_data = states_data.loc[(states_data['Month'] == '1') & (states_data['Year'] > '2015')]
+by_month_data = by_month_data.reset_index()
+
+by_month_data.to_csv(path_or_buf = './data/Unemployment-2016-2021.csv')
+
+print(by_month_data)
