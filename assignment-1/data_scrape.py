@@ -5,7 +5,7 @@ states_data = pd.read_csv('./data/ststdsadata.csv', delimiter=',')
 
 #fix column names and removed null rows
 states_data.columns = ['FIPS Code', 'State', 'Year', 'Month', 'Civilian Non-Institutional Population', 'Labor Force Total', 'Labor Force Percent of Population', 'Employment Total', 
-    'Unemployment Total', 'Unemployment Percent of Population', 'Unemployment Rate']
+    'Employment Percent of Population', 'Unemployment Total', 'Unemployment Rate']
 states_data = states_data.iloc[9:]
 
 # 1st month from 2016-2021
