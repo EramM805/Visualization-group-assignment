@@ -1,3 +1,5 @@
+<!-- Code referenced from https://github.com/uwdata/bayesian-surprise-->
+
 <html>
     <head>
     <link rel="stylesheet" type="text/css" href="styles.css" />
@@ -10,7 +12,7 @@
     <div id="main"></div>
     <div id="slider">
         <p id="yearLabel">2016</p>
-        <input type="range" id="year" value="1981" min="2016" max="2021" step = "1" oninput="update()" />
+        <input type="range" id="year" value="2016" min="2016" max="2021" step = "1" oninput="update()" />
     </div>
     <div id="models">
         <div id="mLabel">
@@ -24,26 +26,26 @@
         </p>
         </div>
         <div id="boom" class="model">
-        <p>Boom<br />
-        <span class="caption">All states have the rate they had in 1998.</span>
+        <p>Boom (End of 2016 Recession) <br/>
+        <span class="caption">All states have the rate they had in 2016.</span>
         </p>
         </div>
         <div id="bust" class="model">
-        <p>Bust<br />
-        <span class="caption">All states have the rate they had in 1981.</span>
+        <p>Bust (A Year After COVID-19 Pandemic)<br/>
+        <span class="caption">All states have the rate they had in 2021.</span>
         </p>
         </div>
     </div>
     <div id="readme">
-        <p>A sample Surprise Map of U.S. average unemployment from 1981-1998. This page is a demo for our <a href="http://idl.cs.washington.edu/papers/surprise-maps/">paper</a> at <a href="http://ieeevis.org/">VIS 2016</a>. For an explanation of what makes surprise maps tick, check out our <a href="https://medium.com/@uwdata/surprise-maps-showing-the-unexpected-e92b67398865">Medium post.</a> For code, or to offer suggestions, go to our <a href="https://github.com/uwdata/bayesian-surprise">github repo</a>.</p>
+        <p>A sample Surprise Map of U.S. average unemployment from 2016-2021 to analyze the impact covid had on unemployement. Code used has been referenced from <a href="https://github.com/uwdata/bayesian-surprise">https://github.com/uwdata/bayesian-surprise</a></p>
 
         <p>The large map on the left shows the data - the unemployment rate per state. The large map on the right shows the <i>surprise</i>: what states have the most unexpected unemployment rates? Red are surprisingly high values, blue are surprising low. Driving the surprise are three <i>models of expectation</i>:
         </p>
         <p>
         <ul>
         <li> A <i>uniform</i> model, which assumes all states will have an equal amount of unemployment. </li>
-        <li> A <i>boom</i> model, which assumes states will have the same rate of unemployment as during a recent economic expansion in 1998. </li>
-        <li> A <i>bust</i> model, which assumes states will have the same rate of unemployment as during a recent economic recession in 1981. </li>
+        <li> A <i>boom</i> model, which assumes states will have the same rate of unemployment as during a recent economic expansion in 2016. </li>
+        <li> A <i>bust</i> model, which assumes states will have the same rate of unemployment as during a recent economic recession in 2021. </li>
         </ul>
         </p>
         <p>
