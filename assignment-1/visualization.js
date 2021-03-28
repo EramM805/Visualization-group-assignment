@@ -1,66 +1,68 @@
 
+// Code referenced from https://github.com/uwdata/bayesian-surprise-->
+
 // let data = {};
 let surpriseData = {};
 let temp = {};
 
 //our data ranges from 2016 to 2021
-var maxYear = 2021;
-var minYear = 2016;
-var curYear = minYear;
+let maxYear = 2021;
+let minYear = 2016;
+let curYear = minYear;
 
 //2016 was a boom year
-var boomYear = 2016 - minYear;
+let boomYear = 2016 - minYear;
 
 
-var uniform = {};
-var covid = {};
-var bust = {};
+let uniform = {};
+let boom = {};
+let bust = {};
 
-//2020 was a bust year
-var bustYear = 2020 - minYear;
+//2021 was a bust year because of covid, in Jan of 2020 covid did not show an effect
+let bustYear = 2021 - minYear;
 
 //US States GeoJSON
-var map;
+let map;
 
-var mapWidth = 500;
-var mapHeight = 300;
+let mapWidth = 500;
+let mapHeight = 300;
 
-var smallMapW = 200;
-var smallMapH = 100;
+let smallMapW = 200;
+let smallMapH = 100;
 
-var projection = d3.geo.albersUsa()
+let projection = d3.geo.albersUsa()
       .scale(500)
       .translate([mapWidth/2,mapHeight/2]);
 
-var smallProj = d3.geo.albersUsa()
+let smallProj = d3.geo.albersUsa()
   .scale(200)
   .translate([smallMapW/2,smallMapH/2]);
 
-var path = d3.geo.path().projection(projection);
+let path = d3.geo.path().projection(projection);
 
-var smallPath = d3.geo.path().projection(smallProj);
+let smallPath = d3.geo.path().projection(smallProj);
 
-var rate = d3.scale.quantile()
+let rate = d3.scale.quantile()
     .domain([0, 12])
     .range(colorbrewer.RdPu[9]);
 
-var surprise = d3.scale.quantile()
+let surprise = d3.scale.quantile()
     .domain([-.02, .02])
     .range(colorbrewer.RdBu[11].reverse());
 
-var diff = d3.scale.quantile()
+let diff = d3.scale.quantile()
   .domain([-12, 12])
   .range(colorbrewer.RdYlBu[9].reverse());
 
-var belief = d3.scale.quantile()
+let belief = d3.scale.quantile()
 .domain([-1, 1])
 .range(colorbrewer.RdYlBu[9]);
 
-var y = d3.scale.linear()
+let y = d3.scale.linear()
   .domain([0,1])
   .range([0,smallMapH]);
 
-var x = d3.scale.linear()
+let x = d3.scale.linear()
   .domain([0, maxYear - minYear])
   .range([0, smallMapW]);
 
@@ -101,14 +103,17 @@ function makeAreaChart(data, id, parent){
   var areaChart = parent.append("svg").attr("id", id);
 
   areaChart.selectAll("rect")
-    .data(temp)
+    .data(data)
     .enter()
     .append("rect")
-    .attr("x",function(d,i){ return x(i);})
+    .attr("x",function(d,i){ 
+        return x(i);
+    })
     .attr("y",function(d){ return smallMapH - y(d);})
     .attr("width",x(1) - x(0))
     .attr("height",function(d){ return y(d);})
     .attr("fill",function(d, i){ return belief(d); });
+    console.log(data, id, parent)
 }
 
 function makeBigMap(theScale, theData, theTitle, id){
@@ -265,16 +270,12 @@ function sumU(i){
   
 function getData(){
     d3.csv("./data/Unemployment-2016-2021.csv", function(row){
-        // district of columbia -> washington
-        //LA -> california
-        // console.log(row);
-        let newYork = {}; // 2016 : {New York: [Labor Force Total, Unemployement Total], New York city : [ Labor Force Total, Unemployement Total] }, 2
-        //2016: 
+        //In our data set we have New York city seperated from New York and LA seperated from California. We had to process that data differently
+        let newYork = {}; 
         let cali = {};
-        //# of unemployed/ total ppl in work force
-        // NYS = nyc (# of unemployed) + nys (# of unemployed)/ total ppl in work force in both of them (Labor Force Total, Unemployement Total)
+
+        //iterate through csv and get unemplyement rates per state
         for(let i = 0; i < row.length; i++){
-            // console.log(row[i]);
             if(row[i]["State"] != "New York city" && row[i]["State"] != "New York" && row[i]["State"] != "California" && row[i]["State"] != "Los Angeles County"){
                 if(!temp[row[i]["State"]]){
                     temp[row[i]["State"]] = [];
@@ -282,6 +283,7 @@ function getData(){
                 temp[row[i]["State"]].push(parseInt(row[i]["Unemployment Rate"]));
             }
             else{
+                //for NYC and LA, we do a mathematical calculation to add those values to NYS and California on our maps
                 if(row[i]["State"] == "New York city" || row[i]["State"] == "New York" ){
                     if(!newYork[row[i]["Year"]]){
                         newYork[row[i]["Year"]] = {};
@@ -297,15 +299,16 @@ function getData(){
             }
         }
         let newYorkUnemployement = [];
-        let caliUnemployement = []
+        let caliUnemployement = [];
+        //extracting unemployement rate for New York per year
         for (const year in newYork) {
             let unemployement_total = parseInt(newYork[year]["New York"][1].replace(/,/g, '')) + parseInt(newYork[year]["New York city"][1].replace(/,/g, ''));
             let labor_total = parseInt(newYork[year]["New York"][0].replace(/,/g, '')) + parseInt(newYork[year]["New York city"][0].replace(/,/g, ''));
             let unemployementRate = Math.round((unemployement_total/labor_total) * 100);
             newYorkUnemployement.push(unemployementRate);
         }
+        //extracting unemployement rate for California per year
         for (const year in cali) {
-            // console.log(cali);
             let unemployement_total = parseInt(cali[year]["California"][1].replace(/,/g, '')) + parseInt(cali[year]["Los Angeles County"][1].replace(/,/g, ''));
             let labor_total = parseInt(cali[year]["California"][0].replace(/,/g, '')) + parseInt(cali[year]["Los Angeles County"][0].replace(/,/g, ''));
             let unemployementRate = Math.round((unemployement_total/labor_total) * 100);
@@ -313,32 +316,23 @@ function getData(){
         }          
         temp["New York"] = newYorkUnemployement;
         temp["California"] = caliUnemployement;
-        // console.log("this is temp ", temp);
         var rates = [];
         console.log(temp);
         for(var state in temp){
-            // console.log(temp[state])
             for(let i = 0; i < temp[state].length; i++){
-                // console.log(temp[state][i], state)
                 rates.push(+temp[state][i].toString())
 
             }
-            // }
         }
-        console.log(rates);
+        //calculate our suprise values
         calcSurprise();
        return;
-        // var rates = [];
-        // for(var i = minYear;i <= maxYear;i++){
-        //   rates.push(+row[i.toString()]);
-        // }
-        // data[row.State] = rates;
-        // return;
        }
      );    
     
 }
 
+//geometric data for each state
 function statesData(){
     d3.json("./data/states.json", function(d){
         map = d;
@@ -381,7 +375,7 @@ function calcSurprise(){
     var pMs =[(1/3), (1/3), (1/3)];
   
     uniform.pM = [pMs[0]];
-    covid.pM = [pMs[1]];
+    boom.pM = [pMs[1]];
     bust.pM = [pMs[2]];
   
     var pDMs = [];
@@ -444,20 +438,18 @@ function calcSurprise(){
       }
   
       uniform.pM.push(pMs[0]);
-      covid.pM.push(pMs[1]);
+      boom.pM.push(pMs[1]);
       bust.pM.push(pMs[2]);
     }
-    // console.log("Surprise Data ", surpriseData)
 }
 
 function main(){
     let data = {};
     data = getData();
     statesData();
-    // console.log(data);
-    // calcSurprise();
-    // console.log("here", surpriseData);
 
 }
 
 main();
+
+// Code referenced from https://github.com/uwdata/bayesian-surprise-->
